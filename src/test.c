@@ -397,6 +397,9 @@ void test_hw0()
 }
 void test_hw1()
 {
+    test_nn_resize();
+    test_bl_resize();
+    test_multiple_resize();
     printf("%d tests, %d passed, %d failed\n", tests_total, tests_total-tests_fail, tests_fail);
 }
 void test_hw2()
@@ -422,16 +425,6 @@ void test_hw6()
 
 void run_tests()
 {
-    test_get_pixel();
-    test_set_pixel();
-    test_copy();
-    test_shift();
-    test_grayscale();
-    test_rgb_to_hsv();
-    test_hsv_to_rgb();
-    test_nn_resize();
-    test_bl_resize();
-    test_multiple_resize();
     test_gaussian_filter();
     test_sharpen_filter();
     test_emboss_filter();
