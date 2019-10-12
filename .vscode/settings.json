@@ -1,6 +1,8 @@
 {
   "files.associations": {
     "image.h": "c",
-    "matrix.h": "c"
-  }
+    "matrix.h": "c",
+    "assert.h": "c"
+  },
+  "python.formatting.provider": "yapf"
 }
