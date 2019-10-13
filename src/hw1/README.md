@@ -4,6 +4,8 @@ Welcome friends,
 
 It's time for assignment 1! This one may be a little harder than the last one so remember to start early and start often! In order to make grading easier, please only edit the files we mention. You will submit the `resize_image.c` file on Canvas.
 
+To test your homework, make sure you have run `make` to recompile, then run `./uwimg test hw1`
+
 ## 1. Image resizing ##
 
 We've been talking a lot about resizing and interpolation in class, now's your time to do it! To resize we'll need some interpolation methods and a function to create a new image and fill it in with our interpolation methods.
