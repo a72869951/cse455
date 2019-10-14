@@ -2,9 +2,9 @@
 
 Welcome friends,
 
-It's time for assignment 1! This one may be a little harder than the last one so remember to start early and start often! In order to make grading easier, please only edit the files we mention. You should be able to submit `resize_image.c` and we should be able to compile and run them with a fresh clone of the repo without any other files.
+It's time for assignment 1! This one may be a little harder than the last one so remember to start early and start often! In order to make grading easier, please only edit the files we mention. You will submit the `resize_image.c` file on Canvas.
 
-To start out this homework, copy over your `process_image.c` file from hw0 to the `src` file in this homework. We will be continuing to build out your image library.
+To test your homework, make sure you have run `make` to recompile, then run `./uwimg test hw1`
 
 ## 1. Image resizing ##
 
@@ -32,7 +32,7 @@ Now you should be able to run the following `python` command:
 
 Your image should look something like:
 
-![blocky dog](figs/dog4x-nn.png)
+![blocky dog](../../figs/dog4x-nn.png)
 
 ### 1.3 Bilinear Interpolation ###
 
@@ -47,7 +47,7 @@ Finally, fill in the similar functions `bilinear_interpolate` and....
     a = bilinear_resize(im, im.w*4, im.h*4)
     save_image(a, "dog4x-bl")
 
-![smooth dog](figs/dog4x-bl.png)
+![smooth dog](../../figs/dog4x-bl.png)
 
 These functions will work fine for small changes in size, but when we try to make our image smaller, say a thumbnail, we get very noisy results:
 
@@ -56,7 +56,7 @@ These functions will work fine for small changes in size, but when we try to mak
     a = nn_resize(im, im.w//7, im.h//7)
     save_image(a, "dog7th-bl")
 
-![jagged dog thumbnail](figs/dog7th-nn.png)
+![jagged dog thumbnail](../../figs/dog7th-nn.png)
 
 As we discussed, we need to filter before we do this extreme resize operation!
 
