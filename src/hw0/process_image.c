@@ -62,7 +62,3 @@ void hsv_to_rgb(image im)
     // TODO Fill this in
 }
 
-void scale_image(image im, int c, float v)
-{
-    // TODO Extra credit, fill this in
-}
