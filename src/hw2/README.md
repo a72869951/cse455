@@ -1,12 +1,14 @@
 ## Homework 2 ##
 
-We'll start out by filtering the image with a box filter. There are very fast ways of performing this operation but instead, we'll do the naive thing and implement it as a convolution because it will generalize to other filters as well!
+If we want to perform the large shrinking operations that we talked about in the last homework we need to first smooth our image. We'll start out by filtering the image with a box filter. There are very fast ways of performing this operation but instead, we'll do the naive thing and implement it as a convolution because it will generalize to other filters as well!
+
+To start, you may need to `git pull` the latest changes from GitHub to make sure your code is up to date. Then make sure to `make` (or even better, `make clean` and then `make`) so that your code is recompiled. You can run `./uwimg test hw2` to test your progress as you work.
     
 ### 2.1 Create your box filter ###
 
 Ok, bear with me. We want to create a box filter, which as discussed in class looks like this:
 
-![box filter](figs/boxfilter.png)
+![box filter](../../figs/boxfilter.png)
 
 One way to do this is make an image, fill it in with all 1s, and then normalize it. That's what we'll do because the normalization function may be useful in the future!
 
@@ -26,7 +28,7 @@ Also, `filter` better have either the same number of channels as `im` or have 1 
 
 We are calling this a convolution but you don't need to flip the filter or anything (we're actually doing a cross-correlation). Just apply it to the image as we discussed in class:
 
-![covolution](figs/convolution.png)
+![covolution](../../figs/convolution.png)
 
 Once you are done, test out your convolution by filtering our image! We need to use `preserve` because we want to produce an image that is still RGB.
 
@@ -38,7 +40,7 @@ Once you are done, test out your convolution by filtering our image! We need to 
 
 We'll get some output that looks like this:
 
-![covolution](figs/dog-box7.png)
+![covolution](../../figs/dog-box7.png)
 
 Now we can use this to perform our thumbnail operation:
 
@@ -49,13 +51,13 @@ Now we can use this to perform our thumbnail operation:
     thumb = nn_resize(blur, blur.w//7, blur.h//7)
     save_image(thumb, "dogthumb")
 
-![covolution](figs/dogthumb.png)
+![covolution](../../figs/dogthumb.png)
 
 Look at how much better our new resized thumbnail is!
 
 Resize                     |  Blur and Resize
 :-------------------------:|:-------------------------:
-![](figs/dog7th-nn.png)    | ![](figs/dogthumb.png)
+![](../../figs/dog7th-nn.png)    | ![](../../figs/dogthumb.png)
 
 ### 2.2 Make some more filters and try them out! ###
 
@@ -63,7 +65,7 @@ Fill in the functions `image make_highpass_filter()`, `image make_sharpen_filter
 
 Highpass                   |  Sharpen                  | Emboss
 :-------------------------:|:-------------------------:|:--------------------|
-![](figs/highpass.png)     | ![](figs/sharpen.png)     | ![](figs/emboss.png)
+![](../../figs/highpass.png)     | ![](../../figs/sharpen.png)     | ![](../../figs/emboss.png)
 
 ### 2.3 Implement a Gaussian kernel ###
 
@@ -71,7 +73,7 @@ Implement `image make_gaussian_filter(float sigma)` which will take a standard d
 
 We need to fill in our kernel with some values. Use the probability density function for a 2d gaussian:
 
-![2d gaussian](figs/2dgauss.png)
+![2d gaussian](../../figs/2dgauss.png)
 
 Technically this isn't perfect, what we would really want to do is integrate over the area covered by each cell in the filter. But that's much more complicated and this is a decent estimate. Remember though, this is a blurring filter so we want all the weights to sum to 1. If only we had a function for that....
 
@@ -83,7 +85,7 @@ Now you should be able to try out your new blurring function! It should have muc
     blur = convolve_image(im, f, 1)
     save_image(blur, "dog-gauss2")
 
-![blurred dog](figs/dog-gauss2.png)
+![blurred dog](../../figs/dog-gauss2.png)
 
 ## 2.4 Hybrid images ##
 
@@ -95,7 +97,7 @@ We can also make [really trippy images](http://cvcl.mit.edu/hybrid/OlivaTorralb_
 
 Small                     |  Medium | Large
 :-------------------------:|:-------:|:------------------:
-![](figs/marilyn-einstein-small.png)   | ![](figs/marilyn-einstein-medium.png) | ![](figs/marilyn-einstein.png)
+![](../../figs/marilyn-einstein-small.png)   | ![](../../figs/marilyn-einstein-medium.png) | ![](../../figs/marilyn-einstein.png)
 
 If you don't believe my resizing check out `figs/marilyn-einstein.png` and view it from far away and up close. Sorta neat, right?
 
@@ -104,7 +106,7 @@ Your job is to produce a similar image. But instead of famous dead people we'll 
 
 Small                     | Large
 :-------------------------:|:------------------:
-![](figs/ronbledore-small.jpg)   | ![](figs/ronbledore.jpg) 
+![](../../figs/ronbledore-small.jpg)   | ![](../../figs/ronbledore.jpg) 
 
 For this task you'll have to extract the high frequency and low frequency from some images. You already know how to get low frequency, using your gaussian filter. To get high frequency you just subtract the low frequency data from the original image.
 
@@ -123,7 +125,7 @@ Fill in `image add_image(image a, image b)` and `image sub_image(image a, image 
 
 Low frequency           |  High frequency | Reconstruction
 :-------------------------:|:-------:|:------------------:
-![](figs/low-frequency.png)   | ![](figs/high-frequency.png) | ![](figs/reconstruct.png)
+![](../../figs/low-frequency.png)   | ![](../../figs/high-frequency.png) | ![](../../figs/reconstruct.png)
 
 Note, the high-frequency image overflows when we save it to disk? Is this a problem for us? Why or why not?
 
@@ -139,7 +141,7 @@ First implement the functions to make our sobel filters. They are for estimating
 
 Gx                 |  Gy 
 :-----------------:|:------------------:
-![](figs/gx.png)   |  ![](figs/gy.png)
+![](../../figs/gx.png)   |  ![](../../figs/gy.png)
 
 
 ### 2.5.2 One more normalization... ###
@@ -159,13 +161,13 @@ Fill in the function `image *sobel_image(image im)`. It should return two images
 
 Which results in:
 
-![](figs/magnitude.png)
+![](../../figs/magnitude.png)
 
 ### 2.5.4 Make a colorized representation ###
 
 Now using your sobel filter try to make a cool, stylized one. Fill in the function `image colorize_sobel(image im)`. I used the magnitude to specify the saturation and value of an image and the angle to specify the hue but you can do whatever you want (as long as it looks cool). I also used some smoothing:
 
-![](figs/lcolorized.png)
+![](../../figs/lcolorized.png)
 
 ## Turn it in ##
 
