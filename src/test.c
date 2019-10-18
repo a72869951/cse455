@@ -404,6 +404,15 @@ void test_hw1()
 }
 void test_hw2()
 {
+    test_gaussian_filter();
+    test_sharpen_filter();
+    test_emboss_filter();
+    test_highpass_filter();
+    test_convolution();
+    test_gaussian_blur();
+    test_hybrid_image();
+    test_frequency_image();
+    test_sobel();
     printf("%d tests, %d passed, %d failed\n", tests_total, tests_total-tests_fail, tests_fail);
 }
 void test_hw3()
@@ -425,15 +434,6 @@ void test_hw6()
 
 void run_tests()
 {
-    test_gaussian_filter();
-    test_sharpen_filter();
-    test_emboss_filter();
-    test_highpass_filter();
-    test_convolution();
-    test_gaussian_blur();
-    test_hybrid_image();
-    test_frequency_image();
-    test_sobel();
     test_structure();
     test_cornerness();
     printf("%d tests, %d passed, %d failed\n", tests_total, tests_total-tests_fail, tests_fail);
