@@ -98,6 +98,25 @@ void test_copy()
     free_image(c);
 }
 
+void test_clamp()
+{
+    image im = load_image("data/dog.jpg");
+    image c = copy_image(im);
+    set_pixel(im, 10, 5, 0, -1);
+    set_pixel(im, 15, 15, 1, 1.001);
+    set_pixel(im, 130, 105, 2, -0.01);
+    set_pixel(im, im.w-1, im.h-1, im.c-1, -.01);
+
+    set_pixel(c, 10, 5, 0, 0);
+    set_pixel(c, 15, 15, 1, 1);
+    set_pixel(c, 130, 105, 2, 0);
+    set_pixel(im, im.w-1, im.h-1, im.c-1, 0);
+    clamp_image(im);
+    TEST(same_image(c, im));
+    free_image(im);
+    free_image(c);
+}
+
 void test_shift()
 {
     image im = load_image("data/dog.jpg");
@@ -390,6 +409,7 @@ void test_hw0()
     test_set_pixel();
     test_copy();
     test_shift();
+    test_clamp();
     test_grayscale();
     test_rgb_to_hsv();
     test_hsv_to_rgb();
