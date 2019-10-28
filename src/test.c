@@ -110,7 +110,7 @@ void test_clamp()
     set_pixel(c, 10, 5, 0, 0);
     set_pixel(c, 15, 15, 1, 1);
     set_pixel(c, 130, 105, 2, 0);
-    set_pixel(im, im.w-1, im.h-1, im.c-1, 0);
+    set_pixel(c, im.w-1, im.h-1, im.c-1, 0);
     clamp_image(im);
     TEST(same_image(c, im));
     free_image(im);
