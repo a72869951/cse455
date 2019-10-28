@@ -1,7 +1,7 @@
 #ifndef TEST_H
 #define TEST_H
 #include <stdio.h>
-#define EPS .0005
+#define EPS .002
 extern int tests_total;
 extern int tests_fail;
 #define TEST(EX) do { ++tests_total; if(!(EX)) {\

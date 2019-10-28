@@ -44,14 +44,6 @@ int same_image(image a, image b){
     return 1;
 }
 
-void presave_image_shift(image im)
-{
-    int i;
-    for(i = 0; i < im.w*im.h*im.c; ++i){
-        im.data[i] = ((unsigned char) roundf(255*im.data[i]))/255.f;
-    }
-}
-
 void test_get_pixel(){
     image im = load_image("data/dots.png");
     // Test within image
@@ -91,7 +83,6 @@ void test_grayscale()
     image im = load_image("data/colorbar.png");
     image gray = rgb_to_grayscale(im);
     image gt = load_image("figs/gray.png");
-    presave_image_shift(gray);
     TEST(same_image(gray, gt));
     free_image(im);
     free_image(gray);
@@ -144,7 +135,6 @@ void test_rgb_to_hsv()
     image im = load_image("data/dog.jpg");
     rgb_to_hsv(im);
     image hsv = load_image("figs/dog.hsv.png");
-    presave_image_shift(im);
     TEST(same_image(im, hsv));
     free_image(im);
     free_image(hsv);
@@ -187,7 +177,6 @@ void test_nn_resize()
     image im = load_image("data/dogsmall.jpg");
     image resized = nn_resize(im, im.w*4, im.h*4);
     image gt = load_image("figs/dog4x-nn-for-test.png");
-    presave_image_shift(resized);
     TEST(same_image(resized, gt));
     free_image(im);
     free_image(resized);
@@ -196,7 +185,6 @@ void test_nn_resize()
     image im2 = load_image("data/dog.jpg");
     image resized2 = nn_resize(im2, 713, 467);
     image gt2 = load_image("figs/dog-resize-nn.png");
-    presave_image_shift(resized2);
     TEST(same_image(resized2, gt2));
     free_image(im2);
     free_image(resized2);
@@ -208,7 +196,6 @@ void test_bl_resize()
     image im = load_image("data/dogsmall.jpg");
     image resized = bilinear_resize(im, im.w*4, im.h*4);
     image gt = load_image("figs/dog4x-bl.png");
-    presave_image_shift(resized);
     TEST(same_image(resized, gt));
     free_image(im);
     free_image(resized);
@@ -217,7 +204,6 @@ void test_bl_resize()
     image im2 = load_image("data/dog.jpg");
     image resized2 = bilinear_resize(im2, 713, 467);
     image gt2 = load_image("figs/dog-resize-bil.png");
-    presave_image_shift(resized2);
     TEST(same_image(resized2, gt2));
     free_image(im2);
     free_image(resized2);
@@ -236,7 +222,6 @@ void test_multiple_resize()
         im = im2;
     }
     image gt = load_image("figs/dog-multipleresize.png");
-    presave_image_shift(im);
     TEST(same_image(im, gt));
     free_image(im);
     free_image(gt);
