@@ -83,11 +83,11 @@ image make_1d_gaussian(float sigma) {
 
   int mid = (width - 1) / 2;
   image filter = make_image(width, 1, 1);
-  for (int col = 0; col < width; col++) {
+  for (int x = 0; x < width; x++) {
     float two_sigma2 = 2.0 * sigma * sigma;
-    float x = col - mid;
-    float value = exp(-x * x / two_sigma2) / (M_PI * two_sigma2);
-    set_pixel(filter, col, 0, 0, value);
+    float x_ = x - mid;
+    float value = exp(-x_ * x_ / two_sigma2) / (M_PI * two_sigma2);
+    set_pixel(filter, x, 0, 0, value);
   }
   l1_normalize(filter);
   return filter;
@@ -131,13 +131,13 @@ image structure_matrix(image im, float sigma) {
   free_image(gx_filter);
   free_image(gy_filter);
 
-  for (int row = 0; row < im.h; row++) {
-    for (int col = 0; col < im.w; col++) {
-      float ix = get_pixel(Ix, col, row, 0);
-      float iy = get_pixel(Iy, col, row, 0);
-      set_pixel(Is, col, row, 0, ix * ix);
-      set_pixel(Is, col, row, 1, iy * iy);
-      set_pixel(Is, col, row, 2, ix * iy);
+  for (int y = 0; y < im.h; y++) {
+    for (int x = 0; x < im.w; x++) {
+      float ix = get_pixel(Ix, x, y, 0);
+      float iy = get_pixel(Iy, x, y, 0);
+      set_pixel(Is, x, y, 0, ix * ix);
+      set_pixel(Is, x, y, 1, iy * iy);
+      set_pixel(Is, x, y, 2, ix * iy);
     }
   }
   free_image(Ix);
@@ -158,13 +158,13 @@ float get_cornerness_pixel(float ixx, float iyy, float ixy, float alpha) {
 // returns: a response map of cornerness calculations.
 image cornerness_response(image S) {
   image R = make_image(S.w, S.h, 1);
-  for (int row = 0; row < R.h; row++) {
-    for (int col = 0; col < R.w; col++) {
-      float ixx = get_pixel(S, col, row, 0);
-      float iyy = get_pixel(S, col, row, 1);
-      float ixy = get_pixel(S, col, row, 2);
+  for (int y = 0; y < R.h; y++) {
+    for (int x = 0; x < R.w; x++) {
+      float ixx = get_pixel(S, x, y, 0);
+      float iyy = get_pixel(S, x, y, 1);
+      float ixy = get_pixel(S, x, y, 2);
       float value = get_cornerness_pixel(ixx, iyy, ixy, 0.06);
-      set_pixel(R, col, row, 0, value);
+      set_pixel(R, x, y, 0, value);
     }
   }
   return R;
@@ -176,19 +176,21 @@ image cornerness_response(image S) {
 // returns: image with only local-maxima responses within w pixels.
 image nms_image(image im, int w) {
   image r = copy_image(im);
-  for (int row = 0; row < im.h; row++) {
-    int r_start = row - w, r_end = row + w;
-    r_start = r_start > 0 ? r_start : 0;
-    r_end = r_end < im.h ? r_end : im.h - 1;
-    for (int col = 0; col < im.w; col++) {
-      int c_start = col - w, c_end = col + w;
-      c_start = c_start > 0 ? c_start : 0;
-      c_end = c_end < im.w ? c_end : im.w - 1;
-      for (int w_row = r_start; w_row <= r_end; w_row++) {
-        for (int w_col = c_start; w_col <= c_end; w_col++) {
-          if (w_row == row && w_col == col) continue;
-          if (get_pixel(im, w_col, w_row, 0) > get_pixel(im, col, row, 0))
-            set_pixel(r, col, row, 0, -999999.0);
+  for (int y = 0; y < im.h; y++) {
+    int wy_start = y - w, wy_end = y + w;
+    wy_start = wy_start > 0 ? wy_start : 0;
+    wy_end = wy_end < im.h ? wy_end : im.h - 1;
+
+    for (int x = 0; x < im.w; x++) {
+      int wx_start = x - w, wx_end = x + w;
+      wx_start = wx_start > 0 ? wx_start : 0;
+      wx_end = wx_end < im.w ? wx_end : im.w - 1;
+
+      for (int wy = wy_start; wy <= wy_end; wy++) {
+        for (int wx = wx_start; wx <= wx_end; wx++) {
+          if (wy == y && wx == x) continue;
+          if (get_pixel(im, wx, wy, 0) > get_pixel(im, x, y, 0))
+            set_pixel(r, x, y, 0, __FLT_MIN__);
         }
       }
     }
@@ -213,11 +215,10 @@ descriptor *harris_corner_detector(image im, float sigma, float thresh, int nms,
   // Run NMS on the responses
   image Rnms = nms_image(R, nms);
 
-  //TODO: count number of responses over threshold
-  int count = 1;  // change this
-  for (int row = 0; row < Rnms.h; row++) {
-    for (int col = 0; col < Rnms.w; col++) {
-      if (get_pixel(Rnms, col, row, 0) > thresh) {
+  int count = 0;  // change this
+  for (int y = 0; y < Rnms.h; y++) {
+    for (int x = 0; x < Rnms.w; x++) {
+      if (get_pixel(Rnms, x, y, 0) > thresh) {
         count++;
       }
     }
@@ -225,10 +226,10 @@ descriptor *harris_corner_detector(image im, float sigma, float thresh, int nms,
 
   *n = count;  // <- set *n equal to number of corners in image.
   descriptor *d = calloc(count, sizeof(descriptor));
-  for (int row = 0; row < Rnms.h; row++) {
-    for (int col = 0; col < Rnms.w; col++) {
-      if (get_pixel(Rnms, col, row, 0) > thresh) {
-        d[count--] = describe_index(Rnms, row * Rnms.w + col);
+  for (int y = 0; y < Rnms.h; y++) {
+    for (int x = 0; x < Rnms.w; x++) {
+      if (get_pixel(Rnms, x, y, 0) > thresh) {
+        d[--count] = describe_index(Rnms, y * Rnms.w + x);
       }
     }
   }
