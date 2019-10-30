@@ -7,6 +7,8 @@
 #include "image.h"
 #include "matrix.h"
 
+#define DO_1D_SMOOTHING 0
+
 // Frees an array of descriptors.
 // descriptor *d: the array.
 // int n: number of elements in array.
@@ -98,8 +100,7 @@ image make_1d_gaussian(float sigma) {
 // float sigma: std dev. for Gaussian.
 // returns: smoothed image.
 image smooth_image(image im, float sigma) {
-  char do_1d_smoothing = 0;
-  if (do_1d_smoothing) {
+  if (DO_1D_SMOOTHING) {
     image g = make_1d_gaussian(sigma);
     image s1 = convolve_image(im, g, 1);
     float gh = g.h;
@@ -214,23 +215,20 @@ descriptor *harris_corner_detector(image im, float sigma, float thresh, int nms,
 
   // Run NMS on the responses
   image Rnms = nms_image(R, nms);
-
   int count = 0;  // change this
-  for (int y = 0; y < Rnms.h; y++) {
-    for (int x = 0; x < Rnms.w; x++) {
-      if (get_pixel(Rnms, x, y, 0) > thresh) {
-        count++;
-      }
+  int size = R.c * R.h * R.w;
+  for (int i = 0; i < size; i++) {
+    if (Rnms.data[i] > thresh) {
+      count++;
     }
   }
 
   *n = count;  // <- set *n equal to number of corners in image.
   descriptor *d = calloc(count, sizeof(descriptor));
-  for (int y = 0; y < Rnms.h; y++) {
-    for (int x = 0; x < Rnms.w; x++) {
-      if (get_pixel(Rnms, x, y, 0) > thresh) {
-        d[--count] = describe_index(Rnms, y * Rnms.w + x);
-      }
+  count = 0;
+  for (int i = 0; i < size; i++) {
+    if (Rnms.data[i] > thresh) {
+      d[count++] = describe_index(im, i);
     }
   }
 

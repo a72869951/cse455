@@ -115,7 +115,9 @@ image find_and_draw_matches(image a, image b, float sigma, float thresh, int nms
 // returns: l1 distance between arrays (sum of absolute differences).
 float l1_distance(float *a, float *b, int n) {
   float dis = 0.0;
-  for (int i = 0; i < n; i++) dis += fabsf(a[i] - b[i]);
+  for (int i = 0; i < n; i++) {
+    dis += fabsf(a[i] - b[i]);
+  }
   return dis;
 }
 
@@ -130,14 +132,13 @@ match *match_descriptors(descriptor *a, int an, descriptor *b, int bn, int *mn) 
 
   // We will have at most an matches.
   *mn = an;
+  int data_n = an > 0 ? a[0].n : 0;
   match *m = calloc(an, sizeof(match));
   for (j = 0; j < an; ++j) {
-    // TODO: for every descriptor in a, find best match in b.
-    // record ai as the index in *a and bi as the index in *b.
     float min_dis = __FLT_MAX__;
     int bind = 0;  // <- find the best match
     for (i = 0; i < bn; i++) {
-      float dis = l1_distance(a[j].data, b[i].data, a[j].n);
+      float dis = l1_distance(a[j].data, b[i].data, data_n);
       if (dis < min_dis) {
         min_dis = dis;
         bind = i;
@@ -151,37 +152,15 @@ match *match_descriptors(descriptor *a, int an, descriptor *b, int bn, int *mn) 
   }
 
   int count = 0;
-  int *seen = calloc(bn, sizeof(int));
-  // TODO: we want matches to be injective (one-to-one).
-  // Sort matches based on distance using match_compare and qsort.
-  // Then throw out matches to the same element in b. Use seen to keep track.
-  // Each point should only be a part of one match.
-  // Some points will not be in a match.
-  // In practice just bring good matches to front of list, set *mn.
+  int8_t *seen = calloc(bn, sizeof(int8_t));
   qsort((void *)m, an, sizeof(m[0]), match_compare);
   for (i = 0; i < an; i++) {
-    char is_seen = 0;
-    for (j = 0; j < count && !is_seen; j++) {
-      if (seen[j] == m[i].bi) is_seen = 1;
-    }
-    if (!is_seen) {
-      seen[count++] = m[i].bi;
-    } else {
-      m[i].distance = -1.0;
+    if (!seen[m[i].bi]) {
+      seen[m[i].bi] = 1;
+      m[count] = m[i];
+      count++;
     }
   }
-
-  int dup_b_count = 0;
-  for (i = 0; i < an - dup_b_count; i++) {
-    if (m[i].distance < 0) {
-      match tmp = m[i];
-      m[i] = m[an - dup_b_count - 1];
-      m[an - dup_b_count - 1] = tmp;
-      i--;
-      dup_b_count++;
-    }
-  }
-  assert(count + dup_b_count == an);
   *mn = count;
   free(seen);
   return m;
@@ -193,11 +172,13 @@ match *match_descriptors(descriptor *a, int an, descriptor *b, int bn, int *mn) 
 // returns: point projected using the homography.
 point project_point(matrix H, point p) {
   matrix c = make_matrix(3, 1);
-  // TODO: project point p with homography H.
-  // Remember that homogeneous coordinates are equivalent up to scalar.
-  // Have to divide by.... something...
-  point q = make_point(0, 0);
-  return q;
+  c.data[1][0] = p.y;
+  c.data[2][0] = 1;
+  matrix result = matrix_mult_matrix(H, c);
+  free_matrix(c);
+  float w = result.data[2][0];
+  return make_point(result.data[0][0] / w, result.data[1][0] / w);
+  return make_point(result.data[0][0] / w, result.data[1][0] / w);
 }
 
 // Calculate L2 distance between two points.
@@ -220,10 +201,14 @@ float point_distance(point p, point q) {
 //          so that the inliers are first in the array. For drawing.
 int model_inliers(matrix H, match *m, int n, float thresh) {
   int i;
-  int count = 0;
+  int count = n;
   // TODO: count number of matches that are inliers
   // i.e. distance(H*p, q) < thresh
   // Also, sort the matches m so the inliers are the first 'count' elements.
+  for (i = 0; i < count; i++) {
+    float dis = point_distance(project_point(H, m[i].p), m[i].q);
+    if (dis >= thresh) m[i--] = m[--count];
+  }
   return count;
 }
 
