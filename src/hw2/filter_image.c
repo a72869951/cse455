@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "image.h"
 #define TWOPI 6.2831853
 
@@ -26,22 +27,22 @@ image make_box_filter(int w) {
   }
   return filter;
 }
-image add_padding(image im, int padding) {
-  image im_tmp = make_image(im.w + (2 * padding), im.h + (2 * padding), im.c);
+image add_padding(image im, int padding_w, int padding_h) {
+  image im_tmp = make_image(im.w + 2 * padding_w, im.h + 2 * padding_h, im.c);
   for (int channel = 0; channel < im.c; channel++) {
     for (int row = 0; row < im.h; row++) {
       for (int col = 0; col < im.w; col++) {
         float value = get_pixel(im, col, row, channel);
-        set_pixel(im_tmp, col + padding, row + padding, channel, value);
+        set_pixel(im_tmp, col + padding_w, row + padding_h, channel, value);
       }
     }
   }
 
-  int end_w = im_tmp.w - padding - 1;
+  int end_w = im_tmp.w - padding_w - 1;
   for (int channel = 0; channel < im.c; channel++) {
     for (int row = 0; row < im_tmp.h; row++) {
-      for (int col = 0; col < padding; col++) {
-        float value = get_pixel(im_tmp, padding, row, channel);
+      for (int col = 0; col < padding_w; col++) {
+        float value = get_pixel(im_tmp, padding_w, row, channel);
         set_pixel(im_tmp, col, row, channel, value);
         value = get_pixel(im_tmp, end_w, row, channel);
         set_pixel(im_tmp, end_w + 1 + col, row, channel, value);
@@ -49,11 +50,11 @@ image add_padding(image im, int padding) {
     }
   }
 
-  int end_h = im_tmp.h - padding - 1;
+  int end_h = im_tmp.h - padding_h - 1;
   for (int channel = 0; channel < im.c; channel++) {
     for (int col = 0; col < im_tmp.w; col++) {
-      for (int row = 0; row < padding; row++) {
-        float value = get_pixel(im_tmp, col, padding, channel);
+      for (int row = 0; row < padding_h; row++) {
+        float value = get_pixel(im_tmp, col, padding_h, channel);
         set_pixel(im_tmp, col, row, channel, value);
         value = get_pixel(im_tmp, col, end_h, channel);
         set_pixel(im_tmp, col, end_h + 1 + row, channel, value);
@@ -64,11 +65,13 @@ image add_padding(image im, int padding) {
   return im_tmp;
 }
 
-float convolve_pixel(image im, image filter, int col, int row, int channel, int channel_f) {
+float convolve_pixel(image im, image filter, int col, int row, int channel,
+                     int channel_f) {
   float value = 0;
   for (int row_f = 0; row_f < filter.h; row_f++) {
     for (int col_f = 0; col_f < filter.w; col_f++) {
-      value += get_pixel(im, col + col_f, row + row_f, channel) * get_pixel(filter, col_f, row_f, channel_f);
+      value += get_pixel(im, col + col_f, row + row_f, channel) *
+               get_pixel(filter, col_f, row_f, channel_f);
     }
   }
   return value;
@@ -76,11 +79,11 @@ float convolve_pixel(image im, image filter, int col, int row, int channel, int 
 
 image convolve_image(image im, image filter, int preserve) {
   assert(im.c == filter.c || filter.c == 1);
-  assert(filter.w == filter.h);
 
-  int padding = (filter.w - 1) / 2;
+  int padding_w = (filter.w - 1) / 2;
+  int padding_h = (filter.h - 1) / 2;
   image result = make_image(im.w, im.h, preserve ? im.c : 1);
-  im = add_padding(im, padding);
+  im = add_padding(im, padding_w, padding_h);
 
   for (int channel = 0; channel < im.c; channel++) {
     int channel_f = filter.c == 1 ? 0 : channel;
@@ -125,21 +128,21 @@ image make_emboss_filter() {
 }
 
 /*
-Question 2.2.1: Which of these filters should we use preserve when we run our convolution and which ones should we not? Why?
-Answer:
-Sharpen and Emboss need preserve, but Highpass does not.
-When convolving with Sharpen and Emboss, the resulting images have color. So,
-if do not preserve on these two filters, the resulting images loss the color.
-On the other hand, when convolving with Highpass, the resulting image does not have
-color (only has color in the sharp lines). So, not using preserve will produce
-a resulting image with more emphasised sharp lines.
+Question 2.2.1: Which of these filters should we use preserve when we run our
+convolution and which ones should we not? Why? Answer: Sharpen and Emboss need
+preserve, but Highpass does not. When convolving with Sharpen and Emboss, the
+resulting images have color. So, if do not preserve on these two filters, the
+resulting images loss the color. On the other hand, when convolving with
+Highpass, the resulting image does not have color (only has color in the sharp
+lines). So, not using preserve will produce a resulting image with more
+emphasised sharp lines.
 */
 
 /*
-Question 2.2.2: Do we have to do any post-processing for the above filters? Which ones and why?
-Answer:
-All of them. When convoling, some pixel value might be out of range [0, 1).
-So, we need to cap every pixel value to be between [0, 1)
+Question 2.2.2: Do we have to do any post-processing for the above filters?
+Which ones and why? Answer: All of them. When convoling, some pixel value might
+be out of range [0, 1). So, we need to cap every pixel value to be between [0,
+1)
 */
 
 float get_gaussian_value(int x, int y, float sigma) {

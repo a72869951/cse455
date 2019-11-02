@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
 #include "image.h"
 #include "matrix.h"
 
@@ -206,7 +207,8 @@ image nms_image(image im, int w) {
 // int nms: distance to look for local-maxes in response map.
 // int *n: pointer to number of corners detected, should fill in.
 // returns: array of descriptors of the corners in the image.
-descriptor *harris_corner_detector(image im, float sigma, float thresh, int nms, int *n) {
+descriptor *harris_corner_detector(image im, float sigma, float thresh, int nms,
+                                   int *n) {
   // Calculate structure matrix
   image S = structure_matrix(im, sigma);
 

@@ -178,13 +178,12 @@ point project_point(matrix H, point p) {
   c.data[0][0] = p.x;
   c.data[1][0] = p.y;
   c.data[2][0] = 1;
-  matrix result = matrix_mult_matrix(H, c);
+  matrix res_m = matrix_mult_matrix(H, c);
+  float w = res_m.data[2][0];
+  point res_p = make_point(res_m.data[0][0] / w, res_m.data[1][0] / w);
+  free_matrix(res_m);
   free_matrix(c);
-  float w = result.data[2][0];
-  // float w = 1;
-  point result_p = make_point(result.data[0][0] / w, result.data[1][0] / w);
-  free_matrix(result);
-  return result_p;
+  return res_p;
 }
 
 // Calculate L2 distance between two points.
@@ -209,18 +208,13 @@ int model_inliers(matrix H, match *m, int n, float thresh) {
   int i, count = n;
   match tmp;
   for (i = 0; i < count; i++) {
-    // printf("%d %d\n", H.rows, H.cols);
     float dis = point_distance(project_point(H, m[i].p), m[i].q);
-    printf("%f-----------\n", dis);
     if (dis >= thresh) {
-      count--;
-      tmp = m[count];
+      tmp = m[--count];
       m[count] = m[i];
-      m[i] = tmp;
-      i--;
+      m[i--] = tmp;
     }
   }
-  printf("----------%f-------------\n", thresh);
   return count;
 }
 
@@ -239,12 +233,6 @@ void randomize_matches(match *m, int n) {
 }
 
 void fill_M_row(double *row, double x, double y, double p, int offset) {
-  row[0] = 0;
-  row[1] = 0;
-  row[2] = 0;
-  row[3] = 0;
-  row[4] = 0;
-  row[5] = 0;
   row[offset] = x;
   row[offset + 1] = y;
   row[offset + 2] = 1;
@@ -268,17 +256,12 @@ matrix compute_homography(match *matches, int n) {
     double xp = matches[i].q.x;
     double y = matches[i].p.y;
     double yp = matches[i].q.y;
-    // printf("%d %d-----\n", matches[i].ai, matches[i].bi);
     b.data[idx][0] = xp;
     b.data[idx2][0] = yp;
     fill_M_row(M.data[idx], x, y, xp, 0);
     fill_M_row(M.data[idx2], x, y, yp, 3);
   }
-  // printf("-------\n");
-  // print_matrix(M);
-  // print_matrix(b);
   matrix a = solve_system(M, b);
-  // print_matrix(a);
   free_matrix(M);
   free_matrix(b);
 
@@ -292,26 +275,10 @@ matrix compute_homography(match *matches, int n) {
     H.data[i / H.cols][i % H.cols] = a.data[i][0];
   }
   H.data[2][2] = 1;
-  // print_matrix(H);
 
   free_matrix(a);
   return H;
 }
-
-// int count_inliners(match *m, int n, matrix H, float thresh) {
-//   int i;
-//   int inliners = 0;
-//   matrix p = make_matrix(3, 1);
-//   p.data[2][0] = 1;
-//   for (i = 0; i < n; i++) {
-//     point q = project_point(H, m[i].p);
-//     if (point_distance(q, m[i].q) < thresh) {
-//       inliners++;
-//     }
-//   }
-//   free_matrix(p);
-//   return inliners;
-// }
 
 // Perform RANdom SAmple Consensus to calculate homography for noisy
 // matches. match *m: set of matches. int n: number of matches. float
@@ -332,33 +299,27 @@ matrix RANSAC(match *m, int n, float thresh, int k, int cutoff) {
   //         if it's better than the cutoff:
   //             return it immediately
   // if we get to the end return the best homography
-  int inliners, match_size = 3;  // what should be the match size???
+  int inliners, match_size = 4;
+  matrix H;
   for (e = 0; e < k; e++) {
     randomize_matches(m, n);
-    // for (int i = 0; i < n; i++) {
-    //   printf("%d ", m[i].ai);
-    // }
-    // printf("\n----------------\n");
-    matrix H = compute_homography(m, match_size);
-    if (!!H.data) {
-      // printf("%d %d\n", H.rows, H.cols);
+    H = compute_homography(m, match_size);
+    if (H.data) {
       inliners = model_inliers(H, m, n, thresh);
-      // free_matrix(H);
       if (inliners > best) {
         best = inliners;
-        printf("----%d---%d---%d-----\n", inliners, n, cutoff);
-        H = compute_homography(m, inliners);
-        if (!!H.data) {
-          // free_matrix(Hb);
-          Hb = H;
-          printf("%d %d %lld %d", Hb.rows, Hb.cols, (long long)Hb.data,
-                 Hb.shallow);
-          if (model_inliers(H, m, n, thresh) > cutoff) {
-            return H;
+        free_matrix(Hb);
+        Hb = compute_homography(m, inliners);
+        if (Hb.data) {
+          inliners = model_inliers(Hb, m, n, thresh);
+          if (inliners > cutoff) {
+            return Hb;
           }
+          best = inliners;
         }
       }
     }
+    free_matrix(H);
   }
   return Hb;
 }
@@ -405,7 +366,7 @@ image combine_images(image a, image b, matrix H) {
     for (y = 0; y < a.h; ++y) {
       for (x = 0; x < a.w; ++x) {
         value = get_pixel(a, x, y, channel);
-        set_pixel(c, x + dx, y + dy, channel, value);
+        set_pixel(c, x - dx, y - dy, channel, value);
       }
     }
   }
@@ -415,19 +376,14 @@ image combine_images(image a, image b, matrix H) {
   // and see if their projection from a coordinates to b coordinates falls
   // inside of the bounds of image b. If so, use bilinear interpolation to
   // estimate the value of b at that projection, then fill in image c.
-  float bx, by;
-  matrix q, p = make_matrix(3, 1);
-  p.data[2][0] = 1;
+  point p, q;
   for (y = 0; y < h; y++) {
     for (x = 0; x < w; x++) {
-      p.data[0][0] = x;
-      p.data[1][0] = y;
-      q = matrix_mult_matrix(H, p);
-      bx = q.data[0][0];
-      by = q.data[1][0];
-      if (0 <= bx && bx < b.w && 0 <= by && by <= b.h) {
+      p = make_point(x + dx, y + dy);
+      q = project_point(H, p);
+      if (0 <= q.x && q.x < b.w && 0 <= q.y && q.y <= b.h) {
         for (channel = 0; channel < b.c; channel++) {
-          value = bilinear_interpolate(b, bx, by, channel);
+          value = bilinear_interpolate(b, q.x, q.y, channel);
           set_pixel(c, x, y, channel, value);
         }
       }
@@ -462,7 +418,7 @@ image panorama_image(image a, image b, float sigma, float thresh, int nms,
   // Run RANSAC to find the homography
   matrix H = RANSAC(m, mn, inlier_thresh, iters, cutoff);
 
-  if (1) {
+  if (0) {
     // Mark corners and matches between images
     mark_corners(a, ad, an);
     mark_corners(b, bd, bn);
