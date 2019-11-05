@@ -167,7 +167,7 @@ With all this working you should be able to create some basic panoramas:
 
 ![panorama](../../figs/easy_panorama.jpg)
 
-Try out some of the other panorama creation in `trypanorama.py`. If you stitch together multiple images you should turn off the `if` statement in `panorama_image` that marks corners and draws inliers.
+Try out some of the other panorama creation in `tryhw3.py`. If you stitch together multiple images you should turn off the `if` statement in `panorama_image` that marks corners and draws inliers.
 
 ## Extra Credit ##
 
