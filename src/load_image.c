@@ -96,6 +96,30 @@ image load_image(char *filename)
     return out;
 }
 
+void save_image_binary(image im, const char *fname)
+{
+    FILE *fp = fopen(fname, "wb");
+    fwrite(&im.w, sizeof(int), 1, fp);
+    fwrite(&im.h, sizeof(int), 1, fp);
+    fwrite(&im.c, sizeof(int), 1, fp);
+    fwrite(im.data, sizeof(float), im.w*im.h*im.c, fp);
+    fclose(fp);
+}
+
+image load_image_binary(const char *fname)
+{
+    int w = 0;
+    int h = 0;
+    int c = 0;
+    FILE *fp = fopen(fname, "rb");
+    fread(&w, sizeof(int), 1, fp);
+    fread(&h, sizeof(int), 1, fp);
+    fread(&c, sizeof(int), 1, fp);
+    image im = make_image(w,h,c);
+    fread(im.data, sizeof(float), im.w*im.h*im.c, fp);
+    return im;
+}
+
 void free_image(image im)
 {
     free(im.data);

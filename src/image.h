@@ -61,6 +61,8 @@ image add_image(image a, image b);
 image make_image(int w, int h, int c);
 image load_image(char *filename);
 void save_image(image im, const char *name);
+void save_image_binary(image im, const char *fname);
+image load_image_binary(const char *fname);
 void save_png(image im, const char *name);
 void free_image(image im);
 
