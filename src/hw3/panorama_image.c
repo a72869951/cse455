@@ -435,12 +435,32 @@ image panorama_image(image a, image b, float sigma, float thresh, int nms,
   return comb;
 }
 
+float cyl_y(int x_, int y_, float f) { return y_ / cosf(x_ / f); }
+float cyl_x(int x_, int y_, float f) { return f * tanf(x_ / f); }
+
 // Project an image onto a cylinder.
 // image im: image to project.
 // float f: focal length used to take image (in pixels).
 // returns: image projected onto cylinder, then flattened.
 image cylindrical_project(image im, float f) {
   // TODO: project image onto a cylinder
-  image c = copy_image(im);
-  return c;
+  int w_half = (int)(f * atan2f(im.w / 2.0, f));
+  int h_half = (int)(f * im.h / (sqrtf(f * f) * 2));
+
+  image result = make_image(w_half * 2, h_half * 2, im.c);
+
+  for (int channel = 0; channel < result.c; channel++) {
+    for (int y_ = 0; y_ < result.h; y_++) {
+      for (int x_ = 0; x_ < result.w; x_++) {
+        int x = cyl_x(x_ - w_half, y_ - h_half, f) + (im.w / 2);
+        int y = cyl_y(x_ - w_half, y_ - h_half, f) + (im.h / 2);
+        // printf("%d %d\n", x, y);
+        float value = bilinear_interpolate(im, x, y, channel);
+        set_pixel(result, x_, y_, channel, value);
+      }
+    }
+  }
+
+  return result;
+  // return im;
 }
