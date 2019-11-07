@@ -89,6 +89,9 @@ image colorize_sobel(image im);
 image smooth_image(image im, float sigma);
 
 // Harris and Stitching
+point make_point(float x, float y);
+point project_point(matrix H, point p);
+matrix compute_homography(match *matches, int n);
 image structure_matrix(image im, float sigma);
 image cornerness_response(image S);
 void free_descriptors(descriptor *d, int n);
