@@ -28,6 +28,23 @@ int within_eps(float a, float b){
     return a-EPS<b && b<a+EPS;
 }
 
+int same_point(point p, point q)
+{
+    return within_eps(p.x, q.x) && within_eps(p.y, q.y);
+}
+
+int same_matrix(matrix m, matrix n)
+{
+    if(m.rows != n.rows || m.cols != n.cols) return 0;
+    int i,j;
+    for(i = 0; i < m.rows; ++i){
+        for(j = 0; j < m.cols; ++j){
+            if(!within_eps(m.data[i][j], n.data[i][j])) return 0;
+        }
+    }
+    return 1;
+}
+
 int same_image(image a, image b){
     int i;
     if(a.w != b.w || a.h != b.h || a.c != b.c) {
@@ -424,6 +441,64 @@ void test_cornerness()
     free_image(gt);
 }
 
+
+
+void test_projection()
+{
+    matrix H = make_translation_homography(12.4, -3.2);
+    TEST(same_point(project_point(H, make_point(0,0)), make_point(12.4, -3.2)));
+    free_matrix(H);
+
+    H = make_identity_homography();
+    H.data[0][0] = 1.32;
+    H.data[0][1] = -1.12;
+    H.data[0][2] = 2.52;
+    H.data[1][0] = -.32;
+    H.data[1][1] = -1.2;
+    H.data[1][2] = .52;
+    H.data[2][0] = -3.32;
+    H.data[2][1] = 1.87;
+    H.data[2][2] = .112;
+    point p = project_point(H, make_point(3.14, 1.59));
+    TEST(same_point(p, make_point(-0.66544, 0.326017)));
+    free_matrix(H);
+}
+
+void test_compute_homography()
+{
+    match *m = calloc(4, sizeof(match));
+    m[0].p = make_point(0,0);
+    m[0].q = make_point(10,10);
+    m[1].p = make_point(3,3);
+    m[1].q = make_point(13,13);
+    m[2].p = make_point(-1.2,-3.4);
+    m[2].q = make_point(8.8,6.6);
+    m[3].p = make_point(9,10);
+    m[3].q = make_point(19,20);
+    matrix H = compute_homography(m, 4);
+    matrix d10 = make_translation_homography(10, 10);
+    TEST(same_matrix(H, d10));
+    free_matrix(H);
+    free_matrix(d10);
+
+    m[0].p = make_point(7.2,1.3);
+    m[0].q = make_point(10,10.9);
+    m[1].p = make_point(3,3);
+    m[1].q = make_point(1.3,7.3);
+    m[2].p = make_point(-.2,-3.4);
+    m[2].q = make_point(.8,2.6);
+    m[3].p = make_point(-3.2,2.4);
+    m[3].q = make_point(1.5,-4.2);
+    H = compute_homography(m, 4);
+    matrix Hp = make_identity_homography();
+    Hp.data[0][0] = -0.1328042; Hp.data[0][1] = -0.2910411; Hp.data[0][2] = 0.8103200;
+    Hp.data[1][0] = -0.0487439; Hp.data[1][1] = -1.3077799; Hp.data[1][2] = 1.4796660;
+    Hp.data[2][0] = -0.0788730; Hp.data[2][1] = -0.3727209; Hp.data[2][2] = 1.0000000;
+    TEST(same_matrix(H, Hp));
+    free_matrix(H);
+    free_matrix(Hp);
+}
+
 void test_hw0()
 {
     test_get_pixel();
@@ -462,7 +537,8 @@ void test_hw3()
 {
     test_structure();
     test_cornerness();
-    printf("%d tests, %d passed, %d failed\n", tests_total, tests_total-tests_fail, tests_fail);
+    test_projection();
+    test_compute_homography();
     printf("%d tests, %d passed, %d failed\n", tests_total, tests_total-tests_fail, tests_fail);
 }
 void test_hw4()

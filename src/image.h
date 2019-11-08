@@ -61,6 +61,8 @@ image add_image(image a, image b);
 image make_image(int w, int h, int c);
 image load_image(char *filename);
 void save_image(image im, const char *name);
+void save_image_binary(image im, const char *fname);
+image load_image_binary(const char *fname);
 void save_png(image im, const char *name);
 void free_image(image im);
 
@@ -87,6 +89,9 @@ image colorize_sobel(image im);
 image smooth_image(image im, float sigma);
 
 // Harris and Stitching
+point make_point(float x, float y);
+point project_point(matrix H, point p);
+matrix compute_homography(match *matches, int n);
 image structure_matrix(image im, float sigma);
 image cornerness_response(image S);
 void free_descriptors(descriptor *d, int n);
