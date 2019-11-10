@@ -18,7 +18,7 @@ We can use our integral image to quickly calculate the sum of regions of an imag
 
 We'll be implementing [Lucas-Kanade](https://en.wikipedia.org/wiki/Lucas%E2%80%93Kanade_method) optical flow. We'll use a structure matrix but this time with temporal information as well. The equation we'll use is:
 
-![](figs/flow-eq.png)
+![](../../figs/flow-eq.png)
 
 ### 4.3.1 Time-structure matrix ###
 
@@ -38,7 +38,7 @@ Try calculating the optical flow between two dog images:
 
 It may look something like:
 
-![](figs/lines.jpg)
+![](../../figs/lines.jpg)
 
 ## 4.4 Optical flow demo using OpenCV ## 
 
