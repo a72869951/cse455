@@ -133,14 +133,13 @@ image structure_matrix(image im, float sigma) {
   free_image(gx_filter);
   free_image(gy_filter);
 
-  for (int y = 0; y < im.h; y++) {
-    for (int x = 0; x < im.w; x++) {
-      float ix = get_pixel(Ix, x, y, 0);
-      float iy = get_pixel(Iy, x, y, 0);
-      set_pixel(Is, x, y, 0, ix * ix);
-      set_pixel(Is, x, y, 1, iy * iy);
-      set_pixel(Is, x, y, 2, ix * iy);
-    }
+  int size = im.h * im.w;
+  for (int i = 0; i < size; i++) {
+    float ix = Ix.data[i];
+    float iy = Iy.data[i];
+    Is.data[i] = ix * ix;
+    Is.data[i + size] = iy * iy;
+    Is.data[i + 2 * size] = ix * iy;
   }
   free_image(Ix);
   free_image(Iy);
@@ -160,14 +159,12 @@ float get_cornerness_pixel(float ixx, float iyy, float ixy, float alpha) {
 // returns: a response map of cornerness calculations.
 image cornerness_response(image S) {
   image R = make_image(S.w, S.h, 1);
-  for (int y = 0; y < R.h; y++) {
-    for (int x = 0; x < R.w; x++) {
-      float ixx = get_pixel(S, x, y, 0);
-      float iyy = get_pixel(S, x, y, 1);
-      float ixy = get_pixel(S, x, y, 2);
-      float value = get_cornerness_pixel(ixx, iyy, ixy, 0.06);
-      set_pixel(R, x, y, 0, value);
-    }
+  int size = R.h * R.w;
+  for (int i = 0; i < size; i++) {
+    float ixx = S.data[i];
+    float iyy = S.data[i + size];
+    float ixy = S.data[i + 2 * size];
+    R.data[i] = get_cornerness_pixel(ixx, iyy, ixy, 0.06);
   }
   return R;
 }
