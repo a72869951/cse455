@@ -2,24 +2,25 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "image.h"
 
 float get_pixel(image im, int x, int y, int c) {
   if (x < 0)
     x = 0;
-  else if (x > im.w)
+  else if (x >= im.w)
     x = im.w - 1;
 
   if (y < 0)
     y = 0;
-  else if (y > im.h)
+  else if (y >= im.h)
     y = im.h - 1;
 
   return im.data[x + (im.w * y) + (im.w * im.h * c)];
 }
 
 void set_pixel(image im, int x, int y, int c, float v) {
-  if (0 <= x && x <= im.w && 0 <= y && y <= im.h) {
+  if (0 <= x && x < im.w && 0 <= y && y < im.h) {
     im.data[x + (im.w * y) + (im.w * im.h * c)] = v;
   }
 }
@@ -40,7 +41,8 @@ image copy_image(image im) {
 }
 
 float rgb_pixel_to_grayscale(image im, int x, int y) {
-  return get_pixel(im, x, y, 0) * 0.299 + get_pixel(im, x, y, 1) * 0.587 + get_pixel(im, x, y, 2) * 0.114;
+  return get_pixel(im, x, y, 0) * 0.299 + get_pixel(im, x, y, 1) * 0.587 +
+         get_pixel(im, x, y, 2) * 0.114;
 }
 
 image rgb_to_grayscale(image im) {

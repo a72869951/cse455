@@ -79,10 +79,6 @@ float box_filter_pixel(image integ, int x, int y, int channel, int padding) {
   int x2 = x + padding;
   int y1 = (++y) - padding;
   int y2 = y + padding;
-  x1 = x1 < 0 ? 0 : x1;
-  y1 = y1 < 0 ? 0 : y1;
-  x2 = x2 > integ.w - 1 ? integ.w - 1 : x2;
-  y2 = y2 > integ.h - 1 ? integ.h - 1 : y2;
   return get_pixel(integ, x2, y2, channel) -
          get_pixel(integ, x1 - 1, y2, channel) -
          get_pixel(integ, x2, y1 - 1, channel) +
@@ -205,6 +201,7 @@ image velocity_image(image S, int stride) {
     }
   }
   free_matrix(M);
+  free_matrix(b);
   return v;
 }
 
