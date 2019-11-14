@@ -283,7 +283,6 @@ void optical_flow_webcam(int smooth, int stride, int div) {
   }
   im = get_image_from_stream(cap);
   im_c = nn_resize(im, im.w / div, im.h / div);
-}
 #else
   fprintf(stderr, "Must compile with OpenCV\n");
 #endif
