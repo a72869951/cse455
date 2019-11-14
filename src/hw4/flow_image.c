@@ -174,8 +174,8 @@ image optical_flow_images(image im, image prev, int smooth, int stride)
 void optical_flow_webcam(int smooth, int stride, int div)
 {
 #ifdef OPENCV
-    CvCapture * cap;
-    cap = cvCaptureFromCAM(0);
+    void * cap;
+    cap = open_video_stream(0, 0, 1280, 720, 30);
     image prev = get_image_from_stream(cap);
     image prev_c = nn_resize(prev, prev.w/div, prev.h/div);
     image im = get_image_from_stream(cap);
