@@ -2,7 +2,7 @@ OPENCV=0
 OPENMP=0
 DEBUG=0
 
-OBJ=load_image.o process_image.o args.o filter_image.o resize_image.o test.o harris_image.o matrix.o panorama_image.o flow_image.o list.o data.o classifier.o
+OBJ=image_opencv.o load_image.o process_image.o args.o filter_image.o resize_image.o test.o harris_image.o matrix.o panorama_image.o flow_image.o list.o data.o classifier.o
 EXOBJ=main.o
 
 VPATH=./src/:./:./src/hw0:./src/hw1:./src/hw2:./src/hw3:./src/hw4:./src/hw5:./src/hw6:./src/hw7
@@ -12,6 +12,7 @@ EXEC=uwimg
 OBJDIR=./obj/
 
 CC=gcc
+CPP=g++ -std=c++11 
 AR=ar
 ARFLAGS=rcs
 OPTS=-Ofast
@@ -35,8 +36,8 @@ CFLAGS+=$(OPTS)
 ifeq ($(OPENCV), 1) 
 COMMON+= -DOPENCV
 CFLAGS+= -DOPENCV
-LDFLAGS+= `pkg-config --libs opencv` 
-COMMON+= `pkg-config --cflags opencv` 
+LDFLAGS+= `pkg-config --libs /usr/local/Cellar/opencv/4.1.2/lib/pkgconfig/opencv4.pc` -lstdc++
+COMMON+= `pkg-config --cflags /usr/local/Cellar/opencv/4.1.2/lib/pkgconfig/opencv4.pc`
 endif
 
 EXOBJS = $(addprefix $(OBJDIR), $(EXOBJ))
@@ -58,6 +59,9 @@ $(SLIB): $(OBJS)
 
 $(OBJDIR)%.o: %.c $(DEPS)
 	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)%.o: %.cpp $(DEPS)
+	$(CPP) $(COMMON) $(CFLAGS) -c $< -o $@
 
 obj:
 	mkdir -p obj
