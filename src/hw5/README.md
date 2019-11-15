@@ -6,8 +6,6 @@ It's time for neural networks!
 
 ## 5.1 Implementing neural networks ##
 
-We've added a bunch of new data structures and types to your image library as we begin to implement some machine learning algorithms. Check them out at line 122 in `src/image.h`.
-
 ### 5.1.1 Activation functions ###
 
 An important part of machine learning, be it linear classifiers or neural networks, is the activation function you use. Fill in `void activate_matrix(matrix m, ACTIVATION a)` to modify `m` to be `f(m)` applied elementwise where the function `f` is given by what the activation `a` is.
