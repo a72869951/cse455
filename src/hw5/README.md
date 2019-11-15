@@ -4,8 +4,6 @@ Welcome friends,
 
 It's time for neural networks!
 
-To start out this homework, copy over your `process_image.c`, `filter_image.c`, `resize_image.c`, `harris_image.c`, `panorama_image.c`, and `flow_image.c` files from hw3 to the `src` directory in this homework. We will be continuing to build out your image library.
-
 ## 5.1 Implementing neural networks ##
 
 We've added a bunch of new data structures and types to your image library as we begin to implement some machine learning algorithms. Check them out at line 122 in `src/image.h`.
