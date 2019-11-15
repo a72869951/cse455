@@ -36,8 +36,8 @@ CFLAGS+=$(OPTS)
 ifeq ($(OPENCV), 1) 
 COMMON+= -DOPENCV
 CFLAGS+= -DOPENCV
-LDFLAGS+= `pkg-config --libs /usr/local/Cellar/opencv/4.1.2/lib/pkgconfig/opencv4.pc` -lstdc++
-COMMON+= `pkg-config --cflags /usr/local/Cellar/opencv/4.1.2/lib/pkgconfig/opencv4.pc`
+LDFLAGS+= `pkg-config --libs opencv` -lstdc++  # This may need to be opencv4 or a specific path
+COMMON+= `pkg-config --cflags opencv`
 endif
 
 EXOBJS = $(addprefix $(OBJDIR), $(EXOBJ))
