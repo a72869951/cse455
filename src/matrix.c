@@ -382,3 +382,33 @@ void test_matrix()
         print_matrix(res);
     }
 }
+
+matrix load_matrix(const char *fname)
+{
+    int rows = 0;
+    int cols = 0;
+    FILE *fp = fopen(fname, "rb");
+    fread(&rows, sizeof(int), 1, fp);
+    fread(&cols, sizeof(int), 1, fp);
+    int i;
+    matrix m = make_matrix(rows, cols);
+    for(i = 0; i < rows; ++i){
+        fread(m.data[i], sizeof(double), cols, fp);
+    }
+    fclose(fp);
+    return m;
+}
+
+void save_matrix(matrix m, const char *fname)
+{
+    FILE *fp = fopen(fname, "wb");
+    fwrite(&m.rows, sizeof(int), 1, fp);
+    fwrite(&m.cols, sizeof(int), 1, fp);
+    int i;
+    for(i = 0; i < m.rows; ++i){
+        fwrite(m.data[i], sizeof(double), m.cols, fp);
+    }
+    fclose(fp);
+}
+
+

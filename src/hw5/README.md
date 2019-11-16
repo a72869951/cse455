@@ -129,7 +129,7 @@ Our training code to implement SGD. First we get a random subset of the data usi
 
 We'll be testing out your implementation on the [MNIST dataset](http://yann.lecun.com/exdb/mnist/)!
 
-When there are questions during this section please answer them in the `tryml.py` file, you will submit this file in Canvas as well as `classifier.c`. Answers can be short, 1-2 sentences.
+When there are questions during this section please answer them in the `tryhw5.py` file, you will submit this file in Canvas as well as `classifier.c`. Answers can be short, 1-2 sentences.
 
 ### 5.2.1 Getting the data ###
 
@@ -149,7 +149,7 @@ Or something similar.
 
 ### 5.2.2 Train a linear softmax model ###
 
-Check out `tryml.py` to see how we're actually going to run the machine learning code you wrote. There are a couple example models in here for softmax regression and neural networks. Run the file with: `python tryml.py` to train a softmax regression model on MNIST. You will see a bunch of numbers scrolling by, this is the loss calculated by the model for the current batch. Hopefully over time this loss goes down as the model improves.
+Check out `tryhw5.py` to see how we're actually going to run the machine learning code you wrote. There are a couple example models in here for softmax regression and neural networks. Run the file with: `python tryhw5.py` to train a softmax regression model on MNIST. You will see a bunch of numbers scrolling by, this is the loss calculated by the model for the current batch. Hopefully over time this loss goes down as the model improves.
 
 After training our python script will calculate the accuracy the model gets on both the training dataset and a separate testing dataset.
 
@@ -203,7 +203,7 @@ Notice that the file of possible labels can be found in `cifar/labels.txt`
 
 ### 5.3.2 Train on CIFAR ###
 
-Modify `tryml.py` to use CIFAR. This should mostly involve swapping out references to `mnist` with `cifar` during dataset loading. Then try training the network. You may have to fiddle with the learning rate to get it to train well.
+Modify `tryhw5.py` to use CIFAR. This should mostly involve swapping out references to `mnist` with `cifar` during dataset loading. Then try training the network. You may have to fiddle with the learning rate to get it to train well.
 
 #### 5.3.2.1 Question ####
 
@@ -211,4 +211,4 @@ How well does your network perform on the CIFAR dataset?
 
 ## Turn it in ##
 
-Turn in your `classifier.c` and `tryhw5.py` on canvas under Assignment 5.
+Turn in your `classifier.c` on canvas under Assignment 5.
