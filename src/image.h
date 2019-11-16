@@ -148,6 +148,14 @@ data load_classification_data(char *images, char *label_file, int bias);
 void free_data(data d);
 data random_batch(data d, int n);
 char *fgetl(FILE *fp);
+void activate_matrix(matrix m, ACTIVATION a);
+void gradient_matrix(matrix m, ACTIVATION a, matrix d);
+matrix forward_layer(layer *l, matrix in);
+matrix backward_layer(layer *l, matrix delta);
+void update_layer(layer *l, double rate, double momentum, double decay);
+layer make_layer(int input, int output, ACTIVATION activation);
+matrix load_matrix(const char *fname);
+void save_matrix(matrix m, const char *fname);
 
 #ifdef __cplusplus
 }
