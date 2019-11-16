@@ -566,10 +566,10 @@ void test_layer()
     matrix w = load_matrix("data/test/w.matrix");
     matrix dw = load_matrix("data/test/dw.matrix");
     matrix v = load_matrix("data/test/v.matrix");
-    matrix prev_delta = load_matrix("data/test/prev_delta.matrix");
+    matrix delta = load_matrix("data/test/delta.matrix");
 
-    matrix truth_prev_delta = load_matrix("data/test/truth_prev_delta.matrix");
     matrix truth_dx = load_matrix("data/test/truth_dx.matrix");
+    matrix truth_v = load_matrix("data/test/truth_v.matrix");
     matrix truth_dw = load_matrix("data/test/truth_dw.matrix");
 
     matrix updated_dw = load_matrix("data/test/updated_dw.matrix");
@@ -584,8 +584,8 @@ void test_layer()
     matrix out = forward_layer(&l, a);
     TEST(same_matrix(truth_out, out));
 
-    matrix dx = backward_layer(&l, prev_delta);
-    TEST(same_matrix(truth_prev_delta, prev_delta));
+    matrix dx = backward_layer(&l, delta);
+    TEST(same_matrix(truth_v, v));
     TEST(same_matrix(truth_dw, l.dw));
     TEST(same_matrix(truth_dx, dx));
 
@@ -593,11 +593,6 @@ void test_layer()
     TEST(same_matrix(updated_dw, l.dw));
     TEST(same_matrix(updated_w, l.w));
     TEST(same_matrix(updated_v, l.v));
-
-    free_matrix(a);
-    free_matrix(w);
-    free_matrix(out);
-    free_matrix(truth_out);
 }
 
 void make_matrix_test()
@@ -608,12 +603,13 @@ void make_matrix_test()
     matrix y = random_matrix(32, 64, 10);
     matrix dw = random_matrix(64, 16, 10);
     matrix v = random_matrix(64, 16, 10);
-    matrix prev_delta = random_matrix(32, 64, 10);
+    matrix delta = random_matrix(32, 16, 10);
 
     save_matrix(a, "data/test/a.matrix");
+    save_matrix(w, "data/test/w.matrix");
     save_matrix(dw, "data/test/dw.matrix");
     save_matrix(v, "data/test/v.matrix");
-    save_matrix(prev_delta, "data/test/prev_delta.matrix");
+    save_matrix(delta, "data/test/delta.matrix");
     save_matrix(y, "data/test/y.matrix");
 
     matrix alog = copy_matrix(a);
@@ -658,8 +654,7 @@ void make_matrix_test()
     matrix out = forward_layer(&l, a);
     save_matrix(out, "data/test/out.matrix");
 
-    matrix dx = backward_layer(&l, prev_delta);
-    save_matrix(prev_delta, "data/test/truth_prev_delta.matrix");
+    matrix dx = backward_layer(&l, delta);
     save_matrix(l.dw, "data/test/truth_dw.matrix");
     save_matrix(l.v, "data/test/truth_v.matrix");
     save_matrix(dx, "data/test/truth_dx.matrix");

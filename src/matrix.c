@@ -393,7 +393,7 @@ matrix load_matrix(const char *fname)
     int i;
     matrix m = make_matrix(rows, cols);
     for(i = 0; i < rows; ++i){
-        fread(m.data[i], sizeof(float), cols, fp);
+        fread(m.data[i], sizeof(double), cols, fp);
     }
     fclose(fp);
     return m;
@@ -406,7 +406,7 @@ void save_matrix(matrix m, const char *fname)
     fwrite(&m.cols, sizeof(int), 1, fp);
     int i;
     for(i = 0; i < m.rows; ++i){
-        fwrite(m.data[i], sizeof(float), m.cols, fp);
+        fwrite(m.data[i], sizeof(double), m.cols, fp);
     }
     fclose(fp);
 }
