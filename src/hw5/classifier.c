@@ -43,16 +43,13 @@ void gradient_matrix(matrix m, ACTIVATION a, matrix d) {
   for (i = 0; i < m.rows; ++i) {
     for (j = 0; j < m.cols; ++j) {
       double x = m.data[i][j];
-      double grad = 1.0;
       if (a == LOGISTIC) {
-        double f = 1.0 / (1.0 + exp(-x));
-        grad = f * (1 - f);
+        d.data[i][j] *= x * (1 - x);
       } else if (a == RELU) {
-        if (x <= 0) grad = 0;
+        if (x <= 0) d.data[i][j] = 0;
       } else if (a == LRELU) {
-        if (x <= 0) grad = 0.1;
+        if (x <= 0) d.data[i][j] = 0.1;
       }
-      d.data[i][j] *= grad;
     }
   }
 }
