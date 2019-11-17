@@ -11,26 +11,21 @@
 void activate_matrix(matrix m, ACTIVATION a) {
   int i, j;
   for (i = 0; i < m.rows; ++i) {
-    double max = __DBL_MIN__;
+    double sum = 0;
     for (j = 0; j < m.cols; ++j) {
       double x = m.data[i][j];
       if (a == LOGISTIC) {
         m.data[i][j] = 1.0 / (1.0 + exp(-x));
       } else if (a == RELU) {
-        if (x < 0) m.data[i][j] = 0;
+        if (x <= 0) m.data[i][j] = 0;
       } else if (a == LRELU) {
-        if (x < 0) m.data[i][j] = 0.1 * x;
+        if (x <= 0) m.data[i][j] = 0.1 * x;
       } else if (a == SOFTMAX) {
-        if (x > max) max = x;
+        m.data[i][j] = exp(m.data[i][j]);
       }
+      sum += m.data[i][j];
     }
-
     if (a == SOFTMAX) {
-      double sum = 0;
-      for (j = 0; j < m.cols; ++j) {
-        m.data[i][j] = exp(m.data[i][j] - max);
-        sum += m.data[i][j];
-      }
       for (j = 0; j < m.cols; ++j) {
         m.data[i][j] /= sum;
       }
@@ -47,17 +42,17 @@ void gradient_matrix(matrix m, ACTIVATION a, matrix d) {
   int i, j;
   for (i = 0; i < m.rows; ++i) {
     for (j = 0; j < m.cols; ++j) {
-      double m_ = m.data[i][j];
-      double d_ = d.data[i][j];
+      double x = m.data[i][j];
+      double grad = 1.0;
       if (a == LOGISTIC) {
-        d.data[i][j] = exp(-d_) / (1.0 + (2.0 * exp(-d_)) + exp(-2.0 * d_));
+        double f = 1.0 / (1.0 + exp(-x));
+        grad = f * (1 - f);
       } else if (a == RELU) {
-        if (m_ < 0) d.data[i][j] = 0;
+        if (x <= 0) grad = 0;
       } else if (a == LRELU) {
-        if (m_ < 0) d.data[i][j] = 0.1 * d_;
-      } else if (a == SOFTMAX) {
-        // TODO: implement
+        if (x <= 0) grad = 0.1;
       }
+      d.data[i][j] *= grad;
     }
   }
 }
@@ -86,7 +81,7 @@ matrix backward_layer(layer *l, matrix delta) {
   // 1.4.1
   // delta is dL/dy
   // TODO: modify it in place to be dL/d(xw)
-  gradient_matrix(l->in, l->activation, delta);
+  gradient_matrix(l->out, l->activation, delta);
 
   // 1.4.2
   // TODO: then calculate dL/dw and save it in l->dw
@@ -114,8 +109,16 @@ void update_layer(layer *l, double rate, double momentum, double decay) {
   // TODO:
   // Calculate Δw_t = dL/dw_t - λw_t + mΔw_{t-1}
   // save it to l->v
+  matrix decay_w_and_dw = axpy_matrix(-decay, l->w, l->dw);
+  matrix delta_w = axpy_matrix(momentum, l->v, decay_w_and_dw);
+  free_matrix(decay_w_and_dw);
+  free_matrix(l->v);
+  l->v = delta_w;
 
   // Update l->w
+  matrix new_w = axpy_matrix(rate, delta_w, l->w);
+  free_matrix(l->w);
+  l->w = new_w;
 
   // Remember to free any intermediate results to avoid memory leaks
 }
