@@ -249,41 +249,99 @@ void train_model(model m, data d, int batch, int iters, double rate,
 // 5.2.2.1 Why might we be interested in both training accuracy and
 // testing accuracy? What do these two numbers tell us about our current
 // model?
-// TODO
+// They both says how good our model is. The training accuracy tells us
+// how good our model is on the training dataset. The testing accuracy
+// tells us how good our model is with data outside our training set.
+// We can use it to determine if our model is over-fit to the training data
+// or not.
 //
 // 5.2.2.2 Try varying the model parameter for learning rate to different
 // powers of 10 (i.e. 10^1, 10^0, 10^-1, 10^-2, 10^-3) and training the
 // model. What patterns do you see and how does the choice of learning
 // rate affect both the loss during training and the final model accuracy?
-// TODO
+// rate=10:
+//   - during training: losses are nan (it overshoots)
+//   - final result: both accuracies are ~0.1
+// rate=1:
+//   - during training: losses looks normal but looks too high
+//   - final result: both accuracies are ~0.85 (still overshoots)
+// rate=0.1:
+//   - during training: losses looks normal
+//   - final result: both are ~0.91
+// rate=0.01:
+//   - during training: losses went down slowly
+//   - final result: both are ~0.90 (the program stop before the loss
+//                   reaches the global minimum)
+// rate=0.001:
+//   - during training: losses went down more slowly
+//   - final result: both are ~0.85 (the program stop before the loss
+//                   reaches the global minimum)
+//
+// the higher ther learning rate, the faster the training loss to hit
+// the global minima. However, if it is too high, it could overshoot
+// and misses the global minima.
 //
 // 5.2.2.3 Try varying the parameter for weight decay to different powers
 // of 10: (10^0, 10^-1, 10^-2, 10^-3, 10^-4, 10^-5). How does weight decay
 // affect the final model training and test accuracy?
-// TODO
+// if the decay is 0, this means it does not decay.
+//   - it has a good result, but could cause the model to overfit
+// if the decay is 1, this means decays the same amount as the weight
+//   - it could cause the model to not reach the global minima
 //
 // 5.2.3.1 Currently the model uses a logistic activation for the first
 // layer. Try using a the different activation functions we programmed.
 // How well do they perform? What's best?
-// TODO
+// for training loss
+// Relu: 0.95
+// Leaky Relu: 0.89
+// Logistic: 0.94
+// Relu works the best
 //
 // 5.2.3.2 Using the same activation, find the best (power of 10) learning
 // rate for your model. What is the training accuracy and testing
 // accuracy?
-// TODO
+// I found that learning rate works the best at 0.1
+// training accuracy is 0.951 and testing accuracy is 0.943
 //
 // 5.2.3.3 Right now the regularization parameter `decay` is set to 0. Try
 // adding some decay to your model. What happens, does it help? Why or why
 // not may this be?
-// TODO
+// I found that decay at 0.01 works the best. The training accuracy decrease
+// to 0.949, but the testing accuracy increase to 0.945
+// This helps increasing the testing accuracy because the weight decay tries
+// to not overfit the model to the training data by decreasing the weight
+// every update. So, the model is more generalizable.
 //
 // 5.2.3.4 Modify your model so it has 3 layers instead of two. The layers
 // should be `inputs -> 64`, `64 -> 32`, and `32 -> outputs`. Also modify
 // your model to train for 3000 iterations instead of 1000. Look at the
 // training and testing error for different values of decay (powers of 10,
 // 10^-4 -> 10^0). Which is best? Why?
-// TODO
+// decay=1:
+//   - training accuracy: 0.937
+//   - testing accuracy: 0.936
+// decay=0.1:
+//   - training accuracy: 0.969
+//   - testing accuracy: 0.962
+// decay=0.01:
+//   - training accuracy: 0.968
+//   - testing accuracy: 0.956
+// decay=0.001:
+//   - training accuracy: 0.976
+//   - testing accuracy: 0.963
+// decay=0.0001:
+//   - training accuracy: 0.979
+//   - testing accuracy: 0.966
+// decay at 0.0001 works the best since the more we decay the model, the harder
+// it is for the weight to make the loss reaches the global minima. So, we need
+// a decay to regularize but not too much.
 //
 // 5.3.2.1 How well does your network perform on the CIFAR dataset?
-// TODO
+// my learning rate is 0.005, and here is my network layout:
+//   make_layer(inputs, 64, RELU),
+//   make_layer(64, 64, RELU),
+//   make_layer(64, outputs, SOFTMAX)
+// as a final result the training accuracy is 0.471, and the testing accuracy is
+// 0.459
 //
